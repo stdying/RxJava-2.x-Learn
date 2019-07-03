@@ -184,6 +184,7 @@ public final class IoScheduler extends Scheduler {
     @NonNull
     @Override
     public Worker createWorker() {
+        //从缓存池中获取一个工作ThreadWorker
         return new EventLoopWorker(pool.get());
     }
 
@@ -227,6 +228,7 @@ public final class IoScheduler extends Scheduler {
                 return EmptyDisposable.INSTANCE;
             }
 
+            //在threadWorker运行异步任务action，最终提交到java线程池中
             return threadWorker.scheduleActual(action, delayTime, unit, tasks);
         }
     }

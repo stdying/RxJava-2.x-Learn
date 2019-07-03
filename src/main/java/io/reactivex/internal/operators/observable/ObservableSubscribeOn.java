@@ -19,26 +19,47 @@ import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.internal.disposables.DisposableHelper;
 
-public final class ObservableSubscribeOn<T> extends AbstractObservableWithUpstream<T, T> {
+public final class ObservableSubscribeOn<T>
+        extends AbstractObservableWithUpstream<T, T> {
     final Scheduler scheduler;
 
+    /**
+     * 使用 create创建时，source对象为 {@link ObservableCreate}
+     */
     public ObservableSubscribeOn(ObservableSource<T> source, Scheduler scheduler) {
         super(source);
         this.scheduler = scheduler;
     }
 
+    /**
+     * s demo中对应 {@link ObservableObserveOn.ObserveOnObserver}对象
+     */
     @Override
     public void subscribeActual(final Observer<? super T> s) {
+        //创建在用于 SubscribeOnObserver 的观察者，s在这里是 ObserveOnObserver 对象
         final SubscribeOnObserver<T> parent = new SubscribeOnObserver<T>(s);
+        /**
+         *  调用 {@link ObservableObserveOn.ObserveOnObserver#onSubscribe}
+         *  生成用于存放数据的缓存队列
+         */
 
         s.onSubscribe(parent);
 
+        /**
+         * scheduler 中直接执行异步任务，即发送原始数据
+         */
         parent.setDisposable(scheduler.scheduleDirect(new SubscribeTask(parent)));
     }
 
-    static final class SubscribeOnObserver<T> extends AtomicReference<Disposable> implements Observer<T>, Disposable {
+    static final class SubscribeOnObserver<T>
+            extends AtomicReference<Disposable>
+            implements Observer<T>, Disposable {
 
         private static final long serialVersionUID = 8094547886072529208L;
+
+        /**
+         * 在demo中对应 {@link ObservableObserveOn.ObserveOnObserver}
+         */
         final Observer<? super T> actual;
 
         final AtomicReference<Disposable> s;
@@ -93,6 +114,12 @@ public final class ObservableSubscribeOn<T> extends AbstractObservableWithUpstre
 
         @Override
         public void run() {
+            /**
+             * source 为 {@link ObservableCreate}对象实例，
+             * 内部调用{@link ObservableCreate#subscribeActual} 的方法
+             *
+             * 数据最终会发送到 {@link ObservableObserveOn.ObserveOnObserver#queue}的中
+             */
             source.subscribe(parent);
         }
     }

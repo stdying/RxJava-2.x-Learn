@@ -1,11 +1,11 @@
 /**
  * Copyright (c) 2016-present, RxJava Contributors.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
  * compliance with the License. You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software distributed under the License is
  * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
  * the License for the specific language governing permissions and limitations under the License.
@@ -27,15 +27,29 @@ import io.reactivex.plugins.RxJavaPlugins;
 public final class ObservableCreate<T> extends Observable<T> {
     final ObservableOnSubscribe<T> source;
 
+    /**
+     * demo 中对应source {@link demo.ThreadSwitchTest.MyObservableOnSubscribe}对象
+     */
     public ObservableCreate(ObservableOnSubscribe<T> source) {
         this.source = source;
     }
 
+    /**
+     * demo 中 observer 对应 {@link ObservableSubscribeOn.SubscribeOnObserver}
+     */
     @Override
     protected void subscribeActual(Observer<? super T> observer) {
         CreateEmitter<T> parent = new CreateEmitter<T>(observer);
         observer.onSubscribe(parent);
 
+        /**
+         * 调用 CreateEmitter onXX方法,内部调用 observer的 onXX方法
+         *
+         * observer 为{@link ObservableSubscribeOn.SubscribeOnObserver}实例，
+         * SubscribeOnObserver 中有{@link ObservableObserveOn.ObserveOnObserver}实例，
+         * CreateEmitter.onNext -> SubscribeOnObserver.onNext -> ObserveOnObserver.onNext
+         * 所以数据最终存入{@link ObservableObserveOn.ObserveOnObserver#queue}对象的
+         */
         try {
             source.subscribe(parent);
         } catch (Throwable ex) {
@@ -45,8 +59,8 @@ public final class ObservableCreate<T> extends Observable<T> {
     }
 
     static final class CreateEmitter<T>
-    extends AtomicReference<Disposable>
-    implements ObservableEmitter<T>, Disposable {
+            extends AtomicReference<Disposable>
+            implements ObservableEmitter<T>, Disposable {
 
 
         private static final long serialVersionUID = -3434801548987643227L;
@@ -64,6 +78,10 @@ public final class ObservableCreate<T> extends Observable<T> {
                 return;
             }
             if (!isDisposed()) {
+                /**
+                 *在demo中 observer 对应 {@link ObservableSubscribeOn.SubscribeOnObserver}
+                 * 回到SubscribeOn 再回转到 ObserveOn
+                 */
                 observer.onNext(t);
             }
         }
@@ -139,8 +157,8 @@ public final class ObservableCreate<T> extends Observable<T> {
      * @param <T> the value type
      */
     static final class SerializedEmitter<T>
-    extends AtomicInteger
-    implements ObservableEmitter<T> {
+            extends AtomicInteger
+            implements ObservableEmitter<T> {
 
         private static final long serialVersionUID = 4883307006032401862L;
 
@@ -227,9 +245,9 @@ public final class ObservableCreate<T> extends Observable<T> {
             SpscLinkedArrayQueue<T> q = queue;
             AtomicThrowable error = this.error;
             int missed = 1;
-            for (;;) {
+            for (; ; ) {
 
-                for (;;) {
+                for (; ; ) {
                     if (e.isDisposed()) {
                         q.clear();
                         return;
