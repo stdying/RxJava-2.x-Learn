@@ -47,6 +47,7 @@ public final class ObservableCreate<T> extends Observable<T> {
          *
          * observer 为{@link ObservableSubscribeOn.SubscribeOnObserver}实例，
          * SubscribeOnObserver 中有{@link ObservableObserveOn.ObserveOnObserver}实例，
+         *
          * CreateEmitter.onNext -> SubscribeOnObserver.onNext -> ObserveOnObserver.onNext
          * 所以数据最终存入{@link ObservableObserveOn.ObserveOnObserver#queue}对象的
          */
@@ -80,7 +81,8 @@ public final class ObservableCreate<T> extends Observable<T> {
             if (!isDisposed()) {
                 /**
                  *在demo中 observer 对应 {@link ObservableSubscribeOn.SubscribeOnObserver}
-                 * 回到SubscribeOn 再回转到 ObserveOn
+                 *
+                 * 数据传递给{@link ObservableSubscribeOn.SubscribeOnObserver}
                  */
                 observer.onNext(t);
             }

@@ -32,6 +32,13 @@ public final class ObservableSubscribeOn<T>
     }
 
 
+    /**
+     * 在ObservableObserveOn对象中生成存放数据的队列queue
+     *
+     * 启动异步任务，开始发送原始数据
+     *
+     * @param s
+     */
     @Override
     public void subscribeActual(final Observer<? super T> s) {
         /**
@@ -40,7 +47,7 @@ public final class ObservableSubscribeOn<T>
          */
         final SubscribeOnObserver<T> parent = new SubscribeOnObserver<T>(s);
         /**
-         *  调用 {@link ObservableObserveOn.ObserveOnObserver#onSubscribe}
+         *  调用 {@link ObservableObserveOn.ObserveOnObserver#onSubscribe(Disposable)}
          *  生成用于存放数据的缓存队列
          */
 
@@ -117,11 +124,11 @@ public final class ObservableSubscribeOn<T>
         public void run() {
             /**
              * source 为 {@link ObservableCreate}对象实例，
-             * 内部调用{@link ObservableCreate#subscribeActual} 的方法
+             * 内部调用{@link ObservableCreate#subscribeActual(Observer)} 的方法
              * 数据会发送给观察者 parent即{@link SubscribeOnObserver},
              *
              * 数据到SubscribeOnObserver，会将数据发送给它观察者actual，即{@link ObservableObserveOn.ObserveOnObserver}
-             * 最终会发送到 {@link ObservableObserveOn.ObserveOnObserver#queue}的中
+             * 在onNext方法中数据进入 {@link ObservableObserveOn.ObserveOnObserver#queue} 队列中
              */
             source.subscribe(parent);
         }

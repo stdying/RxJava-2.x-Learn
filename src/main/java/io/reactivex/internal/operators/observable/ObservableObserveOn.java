@@ -55,14 +55,29 @@ public final class ObservableObserveOn<T>
             Scheduler.Worker w = scheduler.createWorker();
 
             /**
-             * source订阅，这里source是{@link ObservableSubscribeOn}对象，
+             * source订阅，
+             * 这里source是{@link ObservableSubscribeOn}对象，
+             *
              *调用subscribe-->subscribeActual
-             *即调用{@link ObservableSubscribeOn#subscribeActual}方法
+             *即调用{@link ObservableSubscribeOn#subscribeActual(Observer)}方法
+             *
+             * observer对象，从subscribe()方法->{@link ObservableObserveOn#subscribeActual(Observer)}
+             * ->{@link ObservableSubscribeOn#subscribeActual(Observer)}
+             * 具体处理到 {@link ObservableSubscribeOn#subscribeActual(Observer)}方法中
              */
             source.subscribe(new ObserveOnObserver<T>(observer, w, delayError, bufferSize));
         }
     }
 
+    /**
+     * queue存储数据
+     *
+     * onSubscribe 生成queue
+     *
+     * onNext 数据存入队列，并判断是否启动线程读取任务
+     *
+     * @param <T>
+     */
     static final class ObserveOnObserver<T>
             extends BasicIntQueueDisposable<T>
             implements Observer<T>, Runnable {
@@ -105,6 +120,8 @@ public final class ObservableObserveOn<T>
          * s 根据demo，s是SubscribeOnObserver对象
          * <p>
          * 主要生成缓存队列queue，用于保存生成的数据
+         *
+         * 启动任务从queue中获取数据
          */
         @Override
         public void onSubscribe(Disposable s) {
@@ -138,7 +155,9 @@ public final class ObservableObserveOn<T>
                  */
                 queue = new SpscLinkedArrayQueue<T>(bufferSize);
 
-                //调用MyObserver的onSubscribe
+                /**
+                 * 调用{@link demo.ThreadSwitchTest.MyObserver}的onSubscribe
+                 */
                 actual.onSubscribe(this);
             }
         }

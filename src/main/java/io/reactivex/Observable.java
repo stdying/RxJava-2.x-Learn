@@ -12028,7 +12028,7 @@ public abstract class Observable<T> implements ObservableSource<T> {
             ObjectHelper.requireNonNull(observer, "Plugin returned null Observer");
 
             /**
-             * 调用子类实现，即 {link {@link ObservableObserveOn#subscribeActual(Observer)}}对象
+             * 调用子类实现，即 {@link ObservableObserveOn#subscribeActual(Observer)}对象
              */
 
             subscribeActual(observer);
