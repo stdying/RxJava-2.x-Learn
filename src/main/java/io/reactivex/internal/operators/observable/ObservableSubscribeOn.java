@@ -1,11 +1,11 @@
 /**
  * Copyright (c) 2016-present, RxJava Contributors.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
  * compliance with the License. You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software distributed under the License is
  * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
  * the License for the specific language governing permissions and limitations under the License.
@@ -31,12 +31,13 @@ public final class ObservableSubscribeOn<T>
         this.scheduler = scheduler;
     }
 
-    /**
-     * s demo中对应 {@link ObservableObserveOn.ObserveOnObserver}对象
-     */
+
     @Override
     public void subscribeActual(final Observer<? super T> s) {
-        //创建在用于 SubscribeOnObserver 的观察者，s在这里是 ObserveOnObserver 对象
+        /**
+         创建在用于 SubscribeOnObserver 的观察者，
+         s在这里是 {@link ObservableObserveOn.ObserveOnObserver} 对象
+         */
         final SubscribeOnObserver<T> parent = new SubscribeOnObserver<T>(s);
         /**
          *  调用 {@link ObservableObserveOn.ObserveOnObserver#onSubscribe}
@@ -117,8 +118,10 @@ public final class ObservableSubscribeOn<T>
             /**
              * source 为 {@link ObservableCreate}对象实例，
              * 内部调用{@link ObservableCreate#subscribeActual} 的方法
+             * 数据会发送给观察者 parent即{@link SubscribeOnObserver},
              *
-             * 数据最终会发送到 {@link ObservableObserveOn.ObserveOnObserver#queue}的中
+             * 数据到SubscribeOnObserver，会将数据发送给它观察者actual，即{@link ObservableObserveOn.ObserveOnObserver}
+             * 最终会发送到 {@link ObservableObserveOn.ObserveOnObserver#queue}的中
              */
             source.subscribe(parent);
         }

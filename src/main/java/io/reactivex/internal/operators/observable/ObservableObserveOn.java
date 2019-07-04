@@ -42,8 +42,8 @@ public final class ObservableObserveOn<T>
     }
 
     /**
-     * 观察者订阅调用该方法,
-     * observer 正常来说时是最终的消费者 {@link demo.ThreadSwitchTest.MyObserver}
+     * demo中,
+     * observer 最终的消费者 {@link demo.ThreadSwitchTest.MyObserver}
      * source 为 {@link ObservableSubscribeOn}
      */
     @Override
@@ -57,7 +57,7 @@ public final class ObservableObserveOn<T>
             /**
              * source订阅，这里source是{@link ObservableSubscribeOn}对象，
              *调用subscribe-->subscribeActual
-             *后面会调用{@link ObservableSubscribeOn}的{@link ObservableSubscribeOn#subscribeActual}方法
+             *即调用{@link ObservableSubscribeOn#subscribeActual}方法
              */
             source.subscribe(new ObserveOnObserver<T>(observer, w, delayError, bufferSize));
         }

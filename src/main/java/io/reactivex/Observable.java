@@ -12027,7 +12027,10 @@ public abstract class Observable<T> implements ObservableSource<T> {
 
             ObjectHelper.requireNonNull(observer, "Plugin returned null Observer");
 
-            //调用子类实现，即ObservableObserveOn对象
+            /**
+             * 调用子类实现，即 {link {@link ObservableObserveOn#subscribeActual(Observer)}}对象
+             */
+
             subscribeActual(observer);
         } catch (NullPointerException e) { // NOPMD
             throw e;
@@ -12105,6 +12108,8 @@ public abstract class Observable<T> implements ObservableSource<T> {
     @SchedulerSupport(SchedulerSupport.CUSTOM)
     public final Observable<T> subscribeOn(Scheduler scheduler) {
         ObjectHelper.requireNonNull(scheduler, "scheduler is null");
+        /**在demo中 this 为{@link ObservableCreate}
+         */
         return RxJavaPlugins.onAssembly(new ObservableSubscribeOn<T>(this, scheduler));
     }
 
