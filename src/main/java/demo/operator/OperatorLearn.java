@@ -8,9 +8,12 @@ import demo.Util;
 public class OperatorLearn {
     public static void main(String[] args) {
         //Operators.takeUtil();
-        Operators.retry();
+        //Operators.retry();
 
-        Util.waitOnObj();
+        Operators.retryWhen();
+        //Operators.retryWhen2();
+
+       Util.waitOnObj();
     }
 
 
