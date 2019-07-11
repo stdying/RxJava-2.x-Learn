@@ -1,4 +1,4 @@
-package demo;
+package demo.util;
 
 public class Util {
 

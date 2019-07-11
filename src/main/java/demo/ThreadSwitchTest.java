@@ -1,10 +1,9 @@
 package demo;
 
+import demo.util.Util;
 import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 public class ThreadSwitchTest {
 

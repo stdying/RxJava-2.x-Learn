@@ -1,7 +1,5 @@
 package demo.operator;
 
-import demo.Util;
-
 /**
  * 操作符
  */
@@ -10,10 +8,12 @@ public class OperatorLearn {
         //Operators.takeUtil();
         //Operators.retry();
 
-        Operators.retryWhen();
+        //Operators.retryWhen();
         //Operators.retryWhen2();
 
-       Util.waitOnObj();
+        Operators.map();
+
+       //Util.waitOnObj();
     }
 
 

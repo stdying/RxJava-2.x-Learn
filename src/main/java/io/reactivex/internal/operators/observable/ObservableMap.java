@@ -30,6 +30,11 @@ public final class ObservableMap<T, U> extends AbstractObservableWithUpstream<T,
 
     @Override
     public void subscribeActual(Observer<? super U> t) {
+        /**
+         * Observer订阅时，调用subscribe 接着调用subscribeActual，Observer保存在MapObserver中，
+         * 通过source.subscribe()将订阅继续向上传递，当上游发送数据时，传递到MapObserver，
+         * MapObserver在调用MyObserver，完成数据传递
+         */
         source.subscribe(new MapObserver<T, U>(t, function));
     }
 
@@ -55,6 +60,7 @@ public final class ObservableMap<T, U> extends AbstractObservableWithUpstream<T,
 
             U v;
 
+            //执行函数
             try {
                 v = ObjectHelper.requireNonNull(mapper.apply(t), "The mapper function returned a null value.");
             } catch (Throwable ex) {

@@ -1,16 +1,41 @@
 package demo.operator;
 
-import demo.Util;
+import demo.util.MyObserver;
+import demo.util.Util;
 import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Operators {
+
+    static void map() {
+        Observable
+                .create(new ObservableOnSubscribe<Integer>() {
+                    @Override
+                    public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+                        emitter.onNext(1);
+                        emitter.onNext(2);
+                        emitter.onComplete();
+                    }
+                })
+                .map(new Function<Integer, String>() {
+                    @Override
+                    public String apply(Integer integer) throws Exception {
+                        return String.valueOf(integer + 1);
+                    }
+                })
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        System.out.println("map-accept:" + s);
+                    }
+                });
+    }
 
     /**
      * 当第二个Observable发送数据时，第一个Observable停止发送数据
@@ -153,24 +178,27 @@ public class Operators {
                 });
     }
 
-//    static void retryWhen2() {
-//        Observable.timer(1, TimeUnit.SECONDS)
-//                .doOnSubscribe(s -> System.out.println("subscribing"))
-//                .map(v -> {
-//                    throw new RuntimeException();
-//                })
-//                .retryWhen(errors -> {
-//                    AtomicInteger counter = new AtomicInteger();
-//                    return errors
-//                            .takeWhile(e -> counter.getAndIncrement() != 3)
-//                            .flatMap(e -> {
-//                                System.out.println("delay retry by " + counter.get() + " second(s)");
-//                                return Observable.timer(counter.get(), TimeUnit.SECONDS);
-//                            });
-//                })
-//                .subscribe(System.out::println, System.out::println, () -> {
-//                    Util.notifyObjAll();
-//                });
-//    }
+    static void retryWhen2() {
+        Observable.timer(1, TimeUnit.SECONDS)
+                .doOnSubscribe(s -> System.out.println("subscribing"))
+                .map(v -> {
+                    throw new RuntimeException();
+                })
+                .retryWhen(errors -> {
+                    AtomicInteger counter = new AtomicInteger();
+                    return errors
+                            .takeWhile(e -> counter.getAndIncrement() != 3)
+                            .flatMap(e -> {
+                                System.out.println("delay retry by " + counter.get() + " second(s)");
+                                return Observable.timer(counter.get(), TimeUnit.SECONDS);
+                            });
+                })
+                .subscribe(System.out::println, System.out::println, () -> {
+                    //Util.notifyObjAll();
+                });
+    }
 
 }
+
+
+
