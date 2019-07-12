@@ -80,7 +80,7 @@ public class Operators {
                     public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
                         emitter.onNext(1);
                         emitter.onNext(2);
-                        if (++retry != 3)
+                        if (++retry != 4)
                             emitter.onError(new Exception("Exception"));
                         emitter.onNext(3);
                         emitter.onNext(4);
@@ -134,26 +134,20 @@ public class Operators {
                  *当onError触发，内部实现重试逻辑，
                  * 返回Observable发送相同的数据
                  */
-                .retryWhen(new Function<Observable<Throwable>, ObservableSource<?>>() {
-                    @Override
-                    public ObservableSource<?> apply(Observable<Throwable> throwableObservable) throws Exception {
-                        return throwableObservable
-                                .zipWith(Observable.range(1, 3), new BiFunction<Throwable, Integer, Integer>() {
-                                    @Override
-                                    public Integer apply(Throwable throwable, Integer integer) throws Exception {
-                                        return integer;
-                                    }
-                                })
-                                .flatMap(new Function<Integer, ObservableSource<?>>() {
-                                    @Override
-                                    public ObservableSource<?> apply(Integer integer) throws Exception {
-                                        System.out.println("delay retry by " + integer + " second(s)");
-                                        return Observable.timer(integer, TimeUnit.SECONDS);
-                                    }
-                                });
-
-                    }
-                })
+                .retryWhen(throwableObservable -> throwableObservable
+                        .zipWith(Observable.range(1, 5), new BiFunction<Throwable, Integer, Integer>() {
+                            @Override
+                            public Integer apply(Throwable throwable, Integer integer) throws Exception {
+                                return integer;
+                            }
+                        })
+                        .flatMap(new Function<Integer, ObservableSource<?>>() {
+                            @Override
+                            public ObservableSource<?> apply(Integer integer) throws Exception {
+                                System.out.println("delay retry by " + integer + " second(s)");
+                                return Observable.timer(integer, TimeUnit.SECONDS);
+                            }
+                        }))
                 .subscribe(new Observer<Integer>() {
                     @Override
                     public void onSubscribe(Disposable d) {
@@ -179,10 +173,11 @@ public class Operators {
     }
 
     static void retryWhen2() {
-        Observable.timer(1, TimeUnit.SECONDS)
+        Observable.interval(1, TimeUnit.SECONDS)
                 .doOnSubscribe(s -> System.out.println("subscribing"))
                 .map(v -> {
-                    throw new RuntimeException();
+                    System.out.println(v);
+                    throw new RuntimeException("RuntimeException");
                 })
                 .retryWhen(errors -> {
                     AtomicInteger counter = new AtomicInteger();
@@ -193,9 +188,8 @@ public class Operators {
                                 return Observable.timer(counter.get(), TimeUnit.SECONDS);
                             });
                 })
-                .subscribe(System.out::println, System.out::println, () -> {
-                    //Util.notifyObjAll();
-                });
+                .subscribe(r -> System.out.println("onNext"), e -> System.out.println(e.getMessage()),
+                        () -> {System.out.println("retryWhen onComplete");Util.notifyObjAll();});
     }
 
 }

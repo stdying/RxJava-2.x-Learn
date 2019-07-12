@@ -37,7 +37,9 @@ public final class ObservableRetryPredicate<T> extends AbstractObservableWithUps
         SequentialDisposable sa = new SequentialDisposable();
         s.onSubscribe(sa);
 
+        //RepeatObserver 里面包装原始数据和观察者，重复订阅
         RepeatObserver<T> rs = new RepeatObserver<T>(s, count, predicate, sa, source);
+
         rs.subscribeNext();
     }
 
@@ -89,7 +91,7 @@ public final class ObservableRetryPredicate<T> extends AbstractObservableWithUps
                     actual.onError(t);
                     return;
                 }
-                subscribeNext();
+                 subscribeNext();
             }
         }
 
@@ -100,11 +102,14 @@ public final class ObservableRetryPredicate<T> extends AbstractObservableWithUps
 
         /**
          * Subscribes to the source again via trampolining.
+         *
+         * 发生error调用该方法，自增加1，内部继续调用
          */
         void subscribeNext() {
             if (getAndIncrement() == 0) {
                 int missed = 1;
                 for (;;) {
+                    //订阅取消，不在重复
                     if (sa.isDisposed()) {
                         return;
                     }

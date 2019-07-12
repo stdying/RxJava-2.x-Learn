@@ -40,6 +40,9 @@ public final class ObservableRetryWhen<T> extends AbstractObservableWithUpstream
 
     @Override
     protected void subscribeActual(Observer<? super T> observer) {
+        //observer 原始订阅者
+
+
         Subject<Throwable> signaller = PublishSubject.<Throwable>create().toSerialized();
 
         ObservableSource<?> other;

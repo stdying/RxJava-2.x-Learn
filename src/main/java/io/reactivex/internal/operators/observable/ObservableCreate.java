@@ -90,6 +90,9 @@ public final class ObservableCreate<T> extends Observable<T> {
 
         @Override
         public void onError(Throwable t) {
+            /**
+             * error发生时，通过dispose设置该emitter为disposed
+             */
             if (!tryOnError(t)) {
                 RxJavaPlugins.onError(t);
             }
@@ -139,6 +142,7 @@ public final class ObservableCreate<T> extends Observable<T> {
 
         @Override
         public void dispose() {
+            //通过helper方法完成设置
             DisposableHelper.dispose(this);
         }
 
