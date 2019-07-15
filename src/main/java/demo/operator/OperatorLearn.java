@@ -18,7 +18,7 @@ public class OperatorLearn {
         //Operators.hotColdObservable();
         Operators.hotColdObservableRefCount();
 
-       Util.waitHours();
+
     }
 
 

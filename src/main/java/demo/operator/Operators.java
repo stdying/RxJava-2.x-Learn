@@ -194,6 +194,12 @@ public class Operators {
                         () -> {System.out.println("retryWhen onComplete");Util.notifyObjAll();});
     }
 
+    /**
+     * publish后，变为ConnectableObservable
+     * connect后，开始发送数据不管有没有观察者订阅
+     *
+     *观察者订阅后，接受最新的数据，之前发送的数据不在接受
+     */
     static void hotColdObservable(){
         ConnectableObservable<Long> connectableObservable = Observable
                 .interval(1,TimeUnit.SECONDS)
@@ -286,6 +292,8 @@ public class Operators {
             });
 
         }).start();
+
+        Util.waitHours();
     }
 
 }
