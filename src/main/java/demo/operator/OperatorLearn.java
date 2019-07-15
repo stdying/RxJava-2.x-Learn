@@ -8,14 +8,17 @@ import demo.util.Util;
 public class OperatorLearn {
     public static void main(String[] args) {
         //Operators.takeUtil();
-        Operators.retry();
+       // Operators.retry();
 
         //Operators.retryWhen();
         //Operators.retryWhen2();
 
         //Operators.map();
 
-       Util.waitOnObj();
+        //Operators.hotColdObservable();
+        Operators.hotColdObservableRefCount();
+
+       Util.waitHours();
     }
 
 

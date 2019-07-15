@@ -7,6 +7,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.observables.ConnectableObservable;
+import io.reactivex.schedulers.Schedulers;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -190,6 +192,100 @@ public class Operators {
                 })
                 .subscribe(r -> System.out.println("onNext"), e -> System.out.println(e.getMessage()),
                         () -> {System.out.println("retryWhen onComplete");Util.notifyObjAll();});
+    }
+
+    static void hotColdObservable(){
+        ConnectableObservable<Long> connectableObservable = Observable
+                .interval(1,TimeUnit.SECONDS)
+                .publish();
+
+        connectableObservable.connect();
+
+        new Thread(() ->{
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            connectableObservable.subscribe(new Consumer<Long>() {
+                @Override
+                public void accept(Long aLong) throws Exception {
+                    System.out.println("hotCold1:"+aLong);
+                }
+            });
+
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            connectableObservable.subscribe(new Consumer<Long>() {
+                @Override
+                public void accept(Long aLong) throws Exception {
+                    System.out.println("hotCold2:"+aLong);
+                }
+            });
+
+        }).start();
+    }
+
+    static void hotColdObservableRefCount(){
+        ConnectableObservable<Long> connectableObservable = Observable
+                .interval(1,TimeUnit.SECONDS)
+                .map(new Function<Long, Long>() {
+                    @Override
+                    public Long apply(Long aLong) throws Exception {
+                        System.out.println("map:"+aLong);
+                        return aLong;
+                    }
+                })
+                .publish();
+
+        Observable observable= connectableObservable.refCount();
+
+        new Thread(() ->{
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Disposable disposable1 = observable.subscribe(new Consumer<Long>() {
+                @Override
+                public void accept(Long aLong) throws Exception {
+                    System.out.println("hotCold1:"+aLong);
+                }
+            });
+
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            disposable1.dispose();
+
+            Disposable disposable2 = observable.subscribeOn(Schedulers.io()).subscribe(new Consumer<Long>() {
+                @Override
+                public void accept(Long aLong) throws Exception {
+                    System.out.println("hotCold2:"+aLong);
+                }
+            });
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            Disposable disposable3 = observable.subscribeOn(Schedulers.computation()).subscribe(new Consumer<Long>() {
+                @Override
+                public void accept(Long aLong) throws Exception {
+                    System.out.println("hotCold3:"+aLong);
+                }
+            });
+
+        }).start();
     }
 
 }

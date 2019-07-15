@@ -45,8 +45,14 @@ public final class ObservablePublish<T> extends ConnectableObservable<T> impleme
      * @return the connectable observable
      */
     public static <T> ConnectableObservable<T> create(ObservableSource<T> source) {
+        /**
+         * 调用connect方法后,source调用subscribe方法，将原始数据发送到PublishObserver
+         */
         // the current connection to source needs to be shared between the operator and its onSubscribe call
         final AtomicReference<PublishObserver<T>> curr = new AtomicReference<PublishObserver<T>>();
+        /**
+         * PublishObserver将订阅者Observer，转交给PublishObserver
+         */
         ObservableSource<T> onSubscribe = new PublishSource<T>(curr);
         return RxJavaPlugins.onAssembly(new ObservablePublish<T>(onSubscribe, source, curr));
     }
@@ -77,6 +83,10 @@ public final class ObservablePublish<T> extends ConnectableObservable<T> impleme
             // retrieve the current subscriber-to-source instance
             ps = current.get();
             // if there is none yet or the current has been disposed
+            /**
+             * 如果，没有PublishObserver，或者已经取消isposed，
+             * 新建PublishObserver
+             */
             if (ps == null || ps.isDisposed()) {
                 // create a new subscriber-to-source
                 PublishObserver<T> u = new PublishObserver<T>(current);
@@ -113,10 +123,24 @@ public final class ObservablePublish<T> extends ConnectableObservable<T> impleme
             throw ExceptionHelper.wrapOrThrow(ex);
         }
         if (doConnect) {
+            /**
+             * source将数据发送搭配ps，即PublishObserver
+             *
+             * 原始数据调用onNext发送数据，onNext调用PublishObserver的onNext方法，内部遍历所有的订阅者
+             */
+
             source.subscribe(ps);
         }
     }
 
+    /**
+     * 数据二次分发
+     *
+     * 保存所有订阅者
+     * 订阅时添加订阅者
+     * disposed时删除订阅者
+     * @param <T>
+     */
     @SuppressWarnings("rawtypes")
     static final class PublishObserver<T>
     implements Observer<T>, Disposable {
@@ -129,6 +153,7 @@ public final class ObservablePublish<T> extends ConnectableObservable<T> impleme
         static final InnerDisposable[] TERMINATED = new InnerDisposable[0];
 
         /** Tracks the subscribed observers. */
+        //所有订阅者
         final AtomicReference<InnerDisposable<T>[]> observers;
         /**
          * Atomically changed from false to true by connect to make sure the
@@ -148,6 +173,7 @@ public final class ObservablePublish<T> extends ConnectableObservable<T> impleme
         @SuppressWarnings("unchecked")
         @Override
         public void dispose() {
+            //清空所有的观察者
             InnerDisposable[] ps = observers.getAndSet(TERMINATED);
             if (ps != TERMINATED) {
                 current.compareAndSet(PublishObserver.this, null);
@@ -321,6 +347,10 @@ public final class ObservablePublish<T> extends ConnectableObservable<T> impleme
             this.curr = curr;
         }
 
+        /**
+         * 有订阅者订阅时，将订阅者存储到PublishObserver对象数组中
+         * @param child 订阅者
+         */
         @Override
         public void subscribe(Observer<? super T> child) {
             // create the backpressure-managing producer for this child
