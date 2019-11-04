@@ -19,6 +19,18 @@ import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.internal.disposables.DisposableHelper;
 
+/**
+ *
+ * 通过subscribe向上订阅原始数据
+ *
+ * 通过 subscribe 实现向上订阅，传递订阅者，每传递一次，订阅者被包装一次
+ *
+ * 最后source数据在第一个subscribeOn的线程上发送数据
+ *
+ * 计算有多个subscribeOn，也只会在使用最靠近 source的线程
+ *
+ * @param <T>
+ */
 public final class ObservableSubscribeOn<T>
         extends AbstractObservableWithUpstream<T, T> {
     final Scheduler scheduler;

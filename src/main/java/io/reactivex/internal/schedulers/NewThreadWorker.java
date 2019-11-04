@@ -133,7 +133,9 @@ public class NewThreadWorker extends Scheduler.Worker implements Disposable {
         Runnable decoratedRun = RxJavaPlugins.onSchedule(run);
 
         ScheduledRunnable sr = new ScheduledRunnable(decoratedRun, parent);
-
+        /**
+         *  每次都添加进去，在ScheduledRunnable取消时(dispose)，从parent中删除
+         */
         if (parent != null) {
             if (!parent.add(sr)) {
                 return sr;

@@ -2,11 +2,13 @@ package demo.operator;
 
 import demo.util.Util;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * 操作符
  */
 public class OperatorLearn {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         //Operators.takeUtil();
        // Operators.retry();
 
@@ -16,8 +18,10 @@ public class OperatorLearn {
         //Operators.map();
 
         //Operators.hotColdObservable();
-        Operators.hotColdObservableRefCount();
+        //Operators.hotColdObservableRefCount();
+        FilterOperator.debounce();
 
+        TimeUnit.HOURS.sleep(1);
 
     }
 

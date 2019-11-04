@@ -24,6 +24,16 @@ import io.reactivex.internal.queue.SpscLinkedArrayQueue;
 import io.reactivex.internal.schedulers.TrampolineScheduler;
 import io.reactivex.plugins.RxJavaPlugins;
 
+/**
+ * 工作由ObserveOnObserver实现
+ *
+ * 内部存在队列queue接收发送过来的数据，存储，在scheduler上重新发送数据
+ *
+ * 调用onSubscribe生成接收数据队列，判断是否有订阅者，如果有将数据在scheduler发送给订阅者
+ *
+ * @param <T>
+ */
+
 public final class ObservableObserveOn<T>
         extends AbstractObservableWithUpstream<T, T> {
     final Scheduler scheduler;

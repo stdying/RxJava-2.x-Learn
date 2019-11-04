@@ -23,6 +23,12 @@ import io.reactivex.internal.disposables.*;
 import io.reactivex.observers.SerializedObserver;
 import io.reactivex.plugins.RxJavaPlugins;
 
+/**
+ * Worker 用于延迟操作
+ * 每次发送数据，新增DebounceEmitter对象，并且取消(dispose)上次创建对象
+ * work 延迟到达时，发送最新设置的数据
+ * @param <T>
+ */
 public final class ObservableDebounceTimed<T> extends AbstractObservableWithUpstream<T, T> {
     final long timeout;
     final TimeUnit unit;
@@ -79,12 +85,15 @@ public final class ObservableDebounceTimed<T> extends AbstractObservableWithUpst
             }
             long idx = index + 1;
             index = idx;
-
+            //取消(dispose)最新创建的Emitter
             Disposable d = timer;
             if (d != null) {
                 d.dispose();
             }
 
+            /**
+             * 每次发送新数据，timeout 重新设置，重新开始延迟
+             */
             DebounceEmitter<T> de = new DebounceEmitter<T>(t, idx, this);
             timer = de;
             d = worker.schedule(de, timeout, unit);

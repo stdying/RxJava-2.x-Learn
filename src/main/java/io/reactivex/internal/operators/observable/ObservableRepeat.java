@@ -35,6 +35,14 @@ public final class ObservableRepeat<T> extends AbstractObservableWithUpstream<T,
         rs.subscribeNext();
     }
 
+
+    /**
+     * source 原始数据发射数据后 经过 RepeatObserver 发送方给 actual,
+     *
+     * 在RepeatObserver onComplete判断是否结束还是继续发送给数据给actual
+     *
+     * @param <T>
+     */
     static final class RepeatObserver<T> extends AtomicInteger implements Observer<T> {
 
         private static final long serialVersionUID = -7098360935104053232L;
