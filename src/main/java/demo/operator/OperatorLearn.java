@@ -16,10 +16,11 @@ public class OperatorLearn {
         //Operators.retryWhen2();
 
         //Operators.map();
+        Operators.publish();
 
         //Operators.hotColdObservable();
         //Operators.hotColdObservableRefCount();
-        FilterOperator.debounce();
+        //FilterOperator.debounce();
 
         TimeUnit.HOURS.sleep(1);
 

@@ -9,6 +9,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.observables.ConnectableObservable;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -294,6 +295,23 @@ public class Operators {
         }).start();
 
         Util.waitHours();
+    }
+
+    public static void publish() {
+        PublishSubject<Integer> observable1 = PublishSubject.create();
+        PublishSubject<String> observable2 = PublishSubject.create();
+
+        Observable
+                .combineLatest(
+                        observable1.startWith(-100000),
+                        observable2.startWith("second"),
+                        (a, b) -> a + b)
+                .subscribe(System.out::println);
+
+        observable1.onNext(1);
+        observable1.onNext(2);
+        observable2.onNext("Test");
+        observable1.onNext(3);
     }
 
 }
